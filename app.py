@@ -220,35 +220,20 @@ tab1, tab2, tab3 = st.tabs(["📰 Detection", "📊 Data Collection", "💾 Expo
 with tab1:
     st.header("News Verification")
     
-    col1, col2 = st.columns([2, 1])
+    # Data source selection
+    data_source = st.selectbox(
+        "Select Data Source:",
+        ["News Article", "Twitter/X", "Facebook", "WhatsApp", "Other Social Media"],
+        key="source_select"
+    )
     
-    with col1:
-        # Data source selection
-        data_source = st.selectbox(
-            "Select Data Source:",
-            ["News Article", "Twitter/X", "Facebook", "WhatsApp", "Other Social Media"],
-            key="source_select"
-        )
-        
-        # Text input
-        inputn = st.text_area(
-            "Content to Analyze:", 
-            placeholder="Paste news article, tweet, or social media post here...", 
-            height=200,
-            key="news_input"
-        )
-    
-    with col2:
-        st.subheader("Metadata")
-        
-        # Metadata collection
-        author = st.text_input("Author/Username:", placeholder="Optional", key="author")
-        url = st.text_input("Source URL:", placeholder="Optional", key="url")
-        shared_by = st.text_input("Shared By:", placeholder="Optional", key="shared_by")
-        share_count = st.number_input("Share Count:", min_value=0, value=0, key="shares")
-        
-        # Additional metadata
-        include_metadata = st.checkbox("Include timestamp metadata", value=True)
+    # Text input
+    inputn = st.text_area(
+        "Content to Analyze:", 
+        placeholder="Paste news article, tweet, or social media post here...", 
+        height=200,
+        key="news_input"
+    )
     
     # Check button
     if st.button("🔍 Analyze Content", type="primary", use_container_width=True):
@@ -268,11 +253,11 @@ with tab1:
                     
                     # Collect metadata
                     metadata = {
-                        "author": author if author else "Unknown",
-                        "url": url if url else "Not provided",
-                        "shared_by": shared_by if shared_by else "Unknown",
-                        "share_count": share_count,
-                        "timestamp": datetime.now().isoformat() if include_metadata else None,
+                        "author": "Unknown",
+                        "url": "Not provided",
+                        "shared_by": "Unknown",
+                        "share_count": 0,
+                        "timestamp": datetime.now().isoformat(),
                         "content_length": len(inputn),
                         "word_count": len(inputn.split())
                     }
@@ -313,13 +298,6 @@ with tab1:
                             st.metric("Confidence", f"{confidence:.1f}%")
                         st.metric("Source", data_source)
                         st.metric("Words", metadata['word_count'])
-                        
-                        if share_count > 0:
-                            st.metric("Shares", share_count)
-                    
-                    # Display metadata
-                    with st.expander("📋 View Full Metadata"):
-                        st.json(metadata)
                     
                 except Exception as e:
                     st.error(f"Error during prediction: {str(e)}")
